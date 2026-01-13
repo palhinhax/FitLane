@@ -7,6 +7,7 @@ import { SessionProvider } from "@/components/session-provider";
 import { UserNav } from "@/components/user-nav";
 import { NavLinks } from "@/components/nav-links";
 import { MobileNav } from "@/components/mobile-nav";
+import packageJson from "@/package.json";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -109,6 +110,7 @@ export default function RootLayout({
               <p className="mt-2">
                 © 2026 Athlifyr. Todos os direitos reservados.
               </p>
+              <p className="mt-1 text-xs">v{packageJson.version}</p>
             </div>
           </footer>
           <Toaster />
