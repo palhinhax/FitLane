@@ -8,6 +8,12 @@ import { UserNav } from "@/components/user-nav";
 import { NavLinks } from "@/components/nav-links";
 import { MobileNav } from "@/components/mobile-nav";
 import packageJson from "@/package.json";
+import { GoogleAnalytics } from "@/components/google-analytics";
+import {
+  generateOrganizationSchema,
+  generateWebSiteSchema,
+} from "@/lib/structured-data";
+import { StructuredData } from "@/components/structured-data";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -21,7 +27,13 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Athlifyr - All Sports Events. One Place.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || "https://athlifyr.com"
+  ),
+  title: {
+    default: "Athlifyr - All Sports Events. One Place.",
+    template: "%s | Athlifyr",
+  },
   description:
     "Discover running, trail, HYROX, CrossFit, OCR, BTT, cycling, surf, triathlon and swimming events in Portugal. Find races, competitions and challenges near you.",
   keywords: [
@@ -36,7 +48,18 @@ export const metadata: Metadata = {
     "surf",
     "triathlon",
     "Portugal",
+    "eventos desportivos",
+    "corrida",
+    "competição",
   ],
+  authors: [{ name: "Athlifyr" }],
+  creator: "Athlifyr",
+  publisher: "Athlifyr",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -71,6 +94,25 @@ export const metadata: Metadata = {
     description:
       "Discover running, trail, HYROX, CrossFit, OCR, BTT, cycling, surf, triathlon and swimming events in Portugal.",
     images: ["/logo.png"],
+    creator: "@athlifyr",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://athlifyr.com",
+  },
+  verification: {
+    // Add Google Search Console verification here when available
+    // google: 'verification-code',
   },
 };
 
@@ -79,11 +121,22 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
+  // Generate structured data schemas for the site
+  const organizationSchema = generateOrganizationSchema();
+  const websiteSchema = generateWebSiteSchema();
+
   return (
     <html lang="pt" suppressHydrationWarning>
+      <head>
+        <StructuredData data={organizationSchema} />
+        <StructuredData data={websiteSchema} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {gaId && <GoogleAnalytics gaId={gaId} />}
         <SessionProvider>
           <header className="sticky top-0 z-50 border-b bg-background">
             <div className="container mx-auto flex h-16 items-center justify-between px-4">
