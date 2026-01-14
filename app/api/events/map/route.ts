@@ -15,7 +15,9 @@ const mapEventsSchema = z.object({
   lng: z.string().optional(),
   radiusKm: z.string().optional(),
   // Filtros adicionais
-  sportType: z.string().optional(),
+  sportType: z.union([z.string(), z.array(z.string())]).optional(),
+  search: z.string().optional(),
+  showPast: z.string().optional(),
   startDate: z.string().optional(),
 });
 
@@ -26,6 +28,10 @@ const mapEventsSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+
+    // Parse multiple sportType values
+    const sportTypes = searchParams.getAll("sportType");
+
     const params = mapEventsSchema.parse({
       north: searchParams.get("north") ?? undefined,
       south: searchParams.get("south") ?? undefined,
@@ -34,7 +40,9 @@ export async function GET(request: NextRequest) {
       lat: searchParams.get("lat") ?? undefined,
       lng: searchParams.get("lng") ?? undefined,
       radiusKm: searchParams.get("radiusKm") ?? undefined,
-      sportType: searchParams.get("sportType") ?? undefined,
+      sportType: sportTypes.length > 0 ? sportTypes : undefined,
+      search: searchParams.get("search") ?? undefined,
+      showPast: searchParams.get("showPast") ?? undefined,
       startDate: searchParams.get("startDate") ?? undefined,
     });
 
@@ -43,11 +51,14 @@ export async function GET(request: NextRequest) {
       // Apenas eventos com coordenadas
       latitude: { not: null },
       longitude: { not: null },
-      // Eventos futuros ou recentes (últimos 7 dias)
-      startDate: {
-        gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      },
     };
+
+    // Filter by date - default to future events unless showPast is true
+    if (params.showPast !== "true") {
+      where.startDate = {
+        gte: new Date(),
+      };
+    }
 
     // Filtro por bounding box (viewport do mapa)
     if (params.north && params.south && params.east && params.west) {
@@ -87,14 +98,30 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Filtro por tipo de desporto
-    if (
-      params.sportType &&
-      Object.values(SportType).includes(params.sportType as SportType)
-    ) {
-      where.sportTypes = {
-        has: params.sportType as SportType,
-      };
+    // Filtro por tipo de desporto (múltiplos)
+    if (params.sportType) {
+      const types = Array.isArray(params.sportType)
+        ? params.sportType
+        : [params.sportType];
+
+      const validTypes = types.filter((type) =>
+        Object.values(SportType).includes(type as SportType)
+      ) as SportType[];
+
+      if (validTypes.length > 0) {
+        where.sportTypes = {
+          hasSome: validTypes,
+        };
+      }
+    }
+
+    // Text search filter (search in title, city, and description)
+    if (params.search && params.search.length > 0) {
+      where.OR = [
+        { title: { contains: params.search, mode: "insensitive" } },
+        { city: { contains: params.search, mode: "insensitive" } },
+        { description: { contains: params.search, mode: "insensitive" } },
+      ];
     }
 
     // Filtro por data
