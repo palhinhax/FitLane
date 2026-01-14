@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import Link from "next/link";
+import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "@/components/ui/toaster";
 import { SessionProvider } from "@/components/session-provider";
 import { UserNav } from "@/components/user-nav";
@@ -166,6 +167,7 @@ export default function RootLayout({
           </footer>
           <Toaster />
         </SessionProvider>
+        <Analytics />
       </body>
     </html>
   );
