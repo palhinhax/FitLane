@@ -79,11 +79,15 @@
     "OTHER": "Otro"
   },
   "events": {
-    "title": "Eventos",
+    "title": "Todos los Eventos",
+    "description": "Descubre los mejores eventos deportivos cerca de ti",
+    "metaTitle": "Todos los Eventos - Athlifyr",
+    "metaDescription": "Explora todos los eventos deportivos. Encuentra carreras, competiciones y desafíos cerca de ti.",
     "upcoming": "Próximos Eventos",
     "featured": "Destacados",
     "allEvents": "Todos los Eventos",
     "noEvents": "No se encontraron eventos",
+    "noEventsDescription": "Intenta ajustar los filtros o vuelve más tarde.",
     "details": "Detalles del Evento",
     "date": "Fecha",
     "location": "Ubicación",
