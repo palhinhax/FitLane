@@ -85,9 +85,8 @@ export default function NotFound() {
   const locale = defaultLocale as SupportedLocale;
   const t = translations[locale];
 
-  // Select a random video (server-side)
-  const randomIndex = Math.floor(Math.random() * backgroundVideos.length);
-  const videoSrc = backgroundVideos[randomIndex];
+  // Use first video to ensure consistent server/client rendering
+  const videoSrc = backgroundVideos[0];
 
   return (
     <html lang={locale}>
